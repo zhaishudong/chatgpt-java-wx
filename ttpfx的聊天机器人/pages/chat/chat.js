@@ -68,7 +68,7 @@ Page({
       let username = wx.getStorageSync('username')
       wx.removeStorageSync('username')
       wx.request({
-        url: 'http://127.0.0.1:80/user/logout',
+        url: 'http://43.159.128.174:8887/user/logout',
         method: "get",
         data: {
           "username": username,
@@ -86,7 +86,7 @@ Page({
 
     }
     wx.request({
-      url: 'http://127.0.0.1:80/user/checkUserKey',
+      url: 'http://43.159.128.174:8887/user/checkUserKey',
       method: "get",
       data: {
         "username": wx.getStorageSync('username'),
@@ -116,7 +116,7 @@ Page({
     }
 
     wx.connectSocket({
-      url: 'ws://127.0.0.1:80/chatWebSocket/' + wx.getStorageSync('username')
+      url: 'ws://43.159.128.174:8887/chatWebSocket/' + wx.getStorageSync('username')
     })
     // console.log( new Date());
     // console.log(wx.getStorageSync('username'));

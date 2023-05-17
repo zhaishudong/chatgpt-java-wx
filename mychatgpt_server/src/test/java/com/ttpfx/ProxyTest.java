@@ -27,31 +27,31 @@ import java.io.IOException;
  * @date 2023/5/12
  */
 public class ProxyTest {
-    @Test
-    public void t1() throws IOException {
-        String url = "https://api.openai.com/v1/chat/completions";
-        HttpPost httpPost = new HttpPost(url);
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            client.execute(new HttpHost("api.openai.com"), httpPost, response -> {
-                System.out.println(response);
-                return null;
-            });
-        }
-    }
-
-    @Test
-    public void t2() throws IOException {
-        //要访问的网址
-        String url = "https://api.openai.com/v1/chat/completions";
-        HttpHost proxy = new HttpHost("127.0.0.1", 7890);
-        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-
-        HttpPost httpPost = new HttpPost(url);
-        try (CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build()) {
-            client.execute(new HttpHost("api.openai.com"), httpPost, response -> {
-                System.out.println(response);
-                return null;
-            });
-        }
-    }
+//    @Test
+//    public void t1() throws IOException {
+//        String url = "https://api.openai.com/v1/chat/completions";
+//        HttpPost httpPost = new HttpPost(url);
+//        try (CloseableHttpClient client = HttpClients.createDefault()) {
+//            client.execute(new HttpHost("api.openai.com"), httpPost, response -> {
+//                System.out.println(response);
+//                return null;
+//            });
+//        }
+//    }
+//
+//    @Test
+//    public void t2() throws IOException {
+//        //要访问的网址
+//        String url = "https://api.openai.com/v1/chat/completions";
+//        HttpHost proxy = new HttpHost("127.0.0.1", 80);
+//        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+//
+//        HttpPost httpPost = new HttpPost(url);
+//        try (CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build()) {
+//            client.execute(new HttpHost("api.openai.com"), httpPost, response -> {
+//                System.out.println(response);
+//                return null;
+//            });
+//        }
+//    }
 }

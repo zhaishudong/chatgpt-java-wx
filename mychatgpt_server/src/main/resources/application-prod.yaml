@@ -8,7 +8,7 @@ spring:
       suffix: .html
   datasource:
     username: root
-    password: password
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/mychatgpt?useUnicode=true&serverTimezone=Asia/Shanghai&useSSL=false
 
