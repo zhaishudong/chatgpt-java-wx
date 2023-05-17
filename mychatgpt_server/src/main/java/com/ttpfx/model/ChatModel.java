@@ -73,7 +73,7 @@ public class ChatModel {
 
             // 设置请求头
             httpPost.setHeader("Content-Type", "application/json");
-            httpPost.setHeader("Authorization", "Bearer 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");
+            httpPost.setHeader("Authorization", "Bearer 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");
 // 设置请求参数
             chatGptRequestParameter.addMessages(new ChatMessage("user", question));
             chatGptRequestParameter.setModel(MODEL_NAME);
