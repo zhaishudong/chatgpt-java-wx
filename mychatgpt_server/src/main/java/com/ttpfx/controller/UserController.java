@@ -3,10 +3,11 @@ package com.ttpfx.controller;
 import com.ttpfx.entity.User;
 import com.ttpfx.service.UserService;
 import com.ttpfx.utils.R;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Resource
@@ -24,8 +26,10 @@ public class UserController {
     public static ConcurrentHashMap<String, User> loginUser = new ConcurrentHashMap<>();
 
     public static ConcurrentHashMap<String, Long> loginUserKey = new ConcurrentHashMap<>();
-    @RequestMapping("/login")
-    public R login(String username, String password) {
+    @PostMapping("/login")
+    public R login(@RequestBody Map<String,String> userMap) {
+        String username = userMap.get("username");
+        String password = userMap.get("password");
         if (username == null) return R.fail("必须填写用户名");
 
 
@@ -47,12 +51,24 @@ public class UserController {
         return R.ok();
     }
 
-    @RequestMapping("/checkUserKey")
-    public R checkUserKey(String username, Long key){
-        if (username==null || key == null)return R.fail("用户校验异常");
-        if (!Objects.equals(loginUserKey.get(username), key)){
-            return R.fail("用户在其他地方登录！！！");
+    @PostMapping("/checkUserKey")
+    public R checkUserKey(@RequestBody Map<String,Object> userMap){
+        String username="";
+        try {
+            if (!ObjectUtils.isEmpty(userMap.get("username"))){
+                username = (String) userMap.get("username");
+            }
+            Long key = 0L;
+            if (!ObjectUtils.isEmpty(userMap.get("key"))){
+                key = Long.parseLong((String) userMap.get("key"));
+            }
+            if (!Objects.equals(loginUserKey.get(username), key)){
+                return R.fail("用户在其他地方登录！！！");
+            }
+        }catch (Exception e){
+            return R.fail("校验异常");
         }
+
         return R.ok();
     }
 

@@ -1,5 +1,7 @@
 package com.ttpfx.model;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ttpfx.vo.chat.ChatMessage;
@@ -7,6 +9,7 @@ import com.ttpfx.vo.chat.ChatRequestParameter;
 import com.ttpfx.vo.chat.ChatResponseParameter;
 import com.ttpfx.vo.chat.Choice;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.async.methods.AbstractCharResponseConsumer;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
@@ -67,6 +70,7 @@ public class ChatModel {
      */
     public String getAnswer(Consumer<String> resConsumer,ChatRequestParameter chatGptRequestParameter, String question) {
         StringBuilder sb = new StringBuilder();
+        boolean stream = false;
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             // 请求URL
             HttpPost httpPost = new HttpPost(URL);
@@ -77,7 +81,7 @@ public class ChatModel {
 // 设置请求参数
             chatGptRequestParameter.addMessages(new ChatMessage("user", question));
             chatGptRequestParameter.setModel(MODEL_NAME);
-
+            chatGptRequestParameter.setStream(stream);
             // 请求的参数转换为字符串
             String valueAsString = null;
             try {
@@ -100,33 +104,45 @@ public class ChatModel {
                     String responseString = EntityUtils.toString(responseEntity,charset);
                     // 收到一个请求就进行处理
                     String ss = responseString;
-                    // 通过data:进行分割，如果不进行此步，可能返回的答案会少一些内容
-                    for (String s : ss.split("data:")) {
-                        // 去除掉data:
-                        if (s.startsWith("data:")) {
-                            s = s.substring(5);
-                        }
-                        // 返回的数据可能是（DONE）
-                        if (s.length() > 8 && !s.contains("[DONE]")) {
-                            // 转换为对象
-                            ChatResponseParameter responseParameter = null;
-                            try {
-                                responseParameter = objectMapper.readValue(s, ChatResponseParameter.class);
-                                // 处理结果
-                                for (Choice choice : responseParameter.getChoices()) {
-                                    String content = choice.getDelta().getContent();
-                                    if (content != null && !"".equals(content)) {
-                                        // 保存结果
-                                        sb.append(content);
-                                        resConsumer.accept(content);
-                                    }
-                                }
-                            } catch (JsonProcessingException e) {
-                                System.out.println("转换异常，"+s.trim()+" 不能被转换为json");
-                            }
+                    if (!stream){
+                        JSONObject jsonObject = JSON.parseObject(StringUtils.defaultIfEmpty(ss,
+                            "{\"id\":\"chatcmpl-7HfhcNq83zGym8v7wP1JTXl2gWzHE\",\"object\":\"chat.completion\",\"created\":1684446236,\"model\":\"gpt-3.5-turbo-0301\",\"usage\":{\"prompt_tokens\":10,\"completion_tokens\":17,\"total_tokens\":27},\"choices\":[{\"message\":{\"role\":\"assistant\",\"content\":\"服务异常\"},\"finish_reason\":\"stop\",\"index\":0}]}"));
+                        JSONObject choices = (JSONObject) (jsonObject.getJSONArray("choices").get(0));
 
+                        JSONObject message = choices.getJSONObject("message");
+                        chatGptRequestParameter.addMessages(new ChatMessage(message.getString("role"), message.getString("content")));
+                        resConsumer.accept(message.getString("content"));
+                    }else {
+                        // 通过data:进行分割，如果不进行此步，可能返回的答案会少一些内容
+                        for (String s : ss.split("data:")) {
+                            // 去除掉data:
+                            if (s.startsWith("data:")) {
+                                s = s.substring(5);
+                            }
+                            // 返回的数据可能是（DONE）
+                            if (s.length() > 8 && !s.contains("[DONE]")) {
+                                // 转换为对象
+                                ChatResponseParameter responseParameter = null;
+                                try {
+                                    responseParameter = objectMapper.readValue(s, ChatResponseParameter.class);
+                                    // 处理结果
+                                    for (Choice choice : responseParameter.getChoices()) {
+                                        String content = choice.getDelta().getContent();
+                                        if (content != null && !"".equals(content)) {
+                                            // 保存结果
+                                            sb.append(content);
+                                            resConsumer.accept(content);
+                                        }
+                                    }
+                                } catch (JsonProcessingException e) {
+                                    System.out.println("转换异常，"+s.trim()+" 不能被转换为json");
+                                }
+
+                            }
                         }
                     }
+
+
 
 
 

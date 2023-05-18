@@ -19,7 +19,7 @@ public class ChatRequestParameter {
 
     private List<ChatMessage> messages = new ArrayList<>();
 
-    private boolean stream = true;
+    private boolean stream;
 
      public void addMessages(ChatMessage message) {
         this.messages.add(message);
