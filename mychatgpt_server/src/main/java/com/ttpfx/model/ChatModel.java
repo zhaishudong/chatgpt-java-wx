@@ -78,7 +78,7 @@ public class ChatModel {
             // 设置请求头
             httpPost.setHeader("Content-Type", "application/json");
             httpPost.setHeader("Authorization", "Bearer "+API_KEY);
-// 设置请求参数
+            // 设置请求参数
             chatGptRequestParameter.addMessages(new ChatMessage("user", question));
             chatGptRequestParameter.setModel(MODEL_NAME);
             chatGptRequestParameter.setStream(stream);
@@ -150,7 +150,8 @@ public class ChatModel {
                 }
             }
         } catch (Exception e) {
-            log.error("Response: " + e);
+            log.error(e.getStackTrace().toString());
+            return "智能小助手开小猜了，请稍后再试";
         }
         // 返回最终答案，用于保存数据库的
         return sb.toString();
