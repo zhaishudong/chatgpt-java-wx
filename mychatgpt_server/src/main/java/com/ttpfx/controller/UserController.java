@@ -76,4 +76,11 @@ public class UserController {
     public R loginUser(){
         return R.ok("success",loginUser.keySet());
     }
+
+    @RequestMapping("/api/userInfo")
+    public R userInfo(String username) {
+        return R.ok();
+    }
+
+
 }
